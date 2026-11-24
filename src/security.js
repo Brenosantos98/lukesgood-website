@@ -1,0 +1,8 @@
+const encoder = new TextEncoder();
+export const hex = bytes => Array.from(new Uint8Array(bytes), b => b.toString(16).padStart(2,'0')).join('');
+export function equal(a,b) { if (typeof a !== 'string' || typeof b !== 'string') return false; let diff=a.length^b.length; for(let i=0;i<Math.max(a.length,b.length);i++) diff|=(a.charCodeAt(i)||0)^(b.charCodeAt(i)||0); return diff===0; }
+export async function hmac(secret,text) { const key=await crypto.subtle.importKey('raw',encoder.encode(secret),{name:'HMAC',hash:'SHA-256'},false,['sign']); return hex(await crypto.subtle.sign('HMAC',key,encoder.encode(text))); }
+export async function passwordHash(password,salt) { const key=await crypto.subtle.importKey('raw',encoder.encode(password),'PBKDF2',false,['deriveBits']); return hex(await crypto.subtle.deriveBits({name:'PBKDF2',hash:'SHA-256',salt:encoder.encode(salt),iterations:100000},key,256)); }
+export async function makeSession(id,secret,now=Date.now()) { const payload=btoa(JSON.stringify({id,exp:now+7*86400000})); return payload+'.'+await hmac(secret,payload); }
+export async function readSession(token,secret,now=Date.now()) { try {const [payload,signature,...extra]=token.split('.'); if(extra.length||!equal(signature,await hmac(secret,payload))) return null; const session=JSON.parse(atob(payload)); return session.exp>now?session:null;} catch {return null;} }
+export function validPushEndpoint(endpoint) { try {const u=new URL(endpoint);return u.protocol==='https:'&&!u.port&&!u.username&&!u.password&&(u.hostname==='web.push.apple.com'||u.hostname.endsWith('.push.apple.com')||u.hostname==='fcm.googleapis.com'||u.hostname==='updates.push.services.mozilla.com');}catch{return false;} }
