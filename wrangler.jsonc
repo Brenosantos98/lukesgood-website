@@ -5,6 +5,6 @@
   "compatibility_date": "2026-11-24",
   "compatibility_flags": ["nodejs_compat"],
   "assets": {"directory": "./public", "binding": "ASSETS", "run_worker_first": true},
-  "d1_databases": [{"binding": "DB", "database_name": "lukesgood-leads", "database_id": "REPLACE_WITH_CREATED_D1_DATABASE_ID", "migrations_dir": "migrations"}],
+  "d1_databases": [{"binding": "DB", "database_name": "lukesgood-leads", "database_id": "4306990a-1bd7-4ab2-9fc5-e1942d181424", "migrations_dir": "migrations"}],
   "triggers": {"crons": ["*/5 * * * *"]}
 }
